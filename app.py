@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-import os
+from pathlib import Path
 from sklearn.metrics import (
     accuracy_score, roc_auc_score, precision_score, 
     recall_score, f1_score, matthews_corrcoef, confusion_matrix
@@ -16,17 +16,28 @@ st.title("📊 Machine Learning Model Evaluation Dashboard")
 st.markdown("### BITS Pilani M.Tech (AIML) - Assignment 2")
 st.write("Upload your test dataset to evaluate our pre-trained classification models in real time.")
 
+APP_DIR = Path(__file__).resolve().parent
+NUMERICAL_COLUMNS = ["tenure", "MonthlyCharges", "TotalCharges"]
+RAW_FEATURE_COLUMNS = [
+    "gender", "SeniorCitizen", "Partner", "Dependents", "tenure",
+    "PhoneService", "MultipleLines", "InternetService", "OnlineSecurity",
+    "OnlineBackup", "DeviceProtection", "TechSupport", "StreamingTV",
+    "StreamingMovies", "Contract", "PaperlessBilling", "PaymentMethod",
+    "MonthlyCharges", "TotalCharges",
+]
+
 # Helper function to safely load saved modeling assets
 @st.cache_resource
 def load_assignment_artifacts():
     try:
-        scaler = joblib.load("model/scaler.joblib")
+        model_dir = APP_DIR / "model"
+        scaler = joblib.load(model_dir / "scaler.joblib")
         models = {
-            "Logistic Regression": joblib.load("model/logistic_regression.joblib"),
-            "Decision Tree": joblib.load("model/decision_tree.joblib"),
-            "KNN": joblib.load("model/knn.joblib"),
-            "Naive Bayes": joblib.load("model/naive_bayes.joblib"),
-            "Support Vector Machine": joblib.load("model/support_vector_machine.joblib"),
+            "Logistic Regression": joblib.load(model_dir / "logistic_regression.joblib"),
+            "Decision Tree": joblib.load(model_dir / "decision_tree.joblib"),
+            "KNN": joblib.load(model_dir / "knn.joblib"),
+            "Naive Bayes": joblib.load(model_dir / "naive_bayes.joblib"),
+            "Support Vector Machine": joblib.load(model_dir / "support_vector_machine.joblib"),
         }
         return scaler, models
     except Exception as e:
@@ -34,6 +45,43 @@ def load_assignment_artifacts():
         return None, None
 
 scaler, models = load_assignment_artifacts()
+
+def prepare_uploaded_data(test_df, active_model):
+    """Convert raw or encoded upload data into the model's training schema."""
+    if "Churn" not in test_df.columns:
+        raise ValueError("The uploaded CSV must contain a target column named 'Churn'.")
+
+    y_test = test_df["Churn"].replace({"Yes": 1, "No": 0})
+    if y_test.isna().any() or not y_test.isin([0, 1]).all():
+        raise ValueError("The 'Churn' column must contain only Yes/No or 0/1 values.")
+
+    X_test = test_df.drop(columns=["Churn"]).copy()
+    expected_columns = list(getattr(active_model, "feature_names_in_", []))
+
+    if set(RAW_FEATURE_COLUMNS).issubset(X_test.columns):
+        X_test["TotalCharges"] = pd.to_numeric(X_test["TotalCharges"], errors="coerce").fillna(0.0)
+        X_test = pd.get_dummies(
+            X_test[RAW_FEATURE_COLUMNS],
+            columns=[column for column in RAW_FEATURE_COLUMNS if column not in NUMERICAL_COLUMNS],
+            drop_first=True,
+        )
+    elif not expected_columns or set(expected_columns) != set(X_test.columns):
+        missing = sorted(set(expected_columns) - set(X_test.columns))
+        extra = sorted(set(X_test.columns) - set(expected_columns))
+        raise ValueError(
+            "The uploaded CSV has an unsupported feature schema. "
+            f"Missing columns: {missing or 'none'}; extra columns: {extra or 'none'}."
+        )
+
+    if expected_columns:
+        X_test = X_test.reindex(columns=expected_columns, fill_value=0)
+
+    missing_numeric = [column for column in NUMERICAL_COLUMNS if column not in X_test]
+    if missing_numeric:
+        raise ValueError(f"Missing required numerical columns: {missing_numeric}.")
+
+    X_test[NUMERICAL_COLUMNS] = scaler.transform(X_test[NUMERICAL_COLUMNS])
+    return X_test, y_test.astype(int)
 
 
 
@@ -59,24 +107,11 @@ if scaler and models:
         # Load the uploaded file
         test_df = pd.read_csv(uploaded_file)
         
-        # Verify the target column exists
-        if "Churn" not in test_df.columns:
-            st.error("❌ The uploaded CSV must contain the target column labeled exactly 'Churn'.")
-        else:
-            st.success("✅ Test dataset uploaded and read successfully!")
-            
-            # Extract features and target values
-            y_test_app = test_df["Churn"]
-            X_test_app = test_df.drop(columns=["Churn"])
-            
-            # Scale the continuous features using our saved training scaler parameters
-            numerical_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
-            X_test_scaled_app = X_test_app.copy()
-            X_test_scaled_app[numerical_cols] = scaler.transform(X_test_app[numerical_cols])
-            
-            # Retrieve the specific selected model object
+        try:
             active_model = models[selected_model_name]
-            
+            X_test_scaled_app, y_test_app = prepare_uploaded_data(test_df, active_model)
+            st.success("✅ Test dataset uploaded and read successfully!")
+
             # Generate predictions and probabilities without retraining
             y_pred_app = active_model.predict(X_test_scaled_app)
             
@@ -88,9 +123,9 @@ if scaler and models:
             # 3. Compute the 6 Mandatory Assignment Metrics
             acc = accuracy_score(y_test_app, y_pred_app)
             auc = roc_auc_score(y_test_app, y_prob_app)
-            prec = precision_score(y_test_app, y_pred_app)
-            rec = recall_score(y_test_app, y_pred_app)
-            f1 = f1_score(y_test_app, y_pred_app)
+            prec = precision_score(y_test_app, y_pred_app, zero_division=0)
+            rec = recall_score(y_test_app, y_pred_app, zero_division=0)
+            f1 = f1_score(y_test_app, y_pred_app, zero_division=0)
             mcc = matthews_corrcoef(y_test_app, y_pred_app)
             
             # 4. Display Metrics Panel Grid Layout
@@ -127,7 +162,10 @@ if scaler and models:
                 f"* Non-churners flagged as churning (False Positives): **{cm[0][1]}** \n"
                 f"* Churners missed completely by the model (False Negatives): **{cm[1][0]}**"
             )
-            
+        except ValueError as error:
+            st.error(f"❌ {error}")
+        except (KeyError, TypeError) as error:
+            st.error(f"❌ Could not process the uploaded CSV: {error}")
     else:
         # Prompt state displayed before user uploads a file
         st.info("💡 Please upload your 'test_data.csv' file using the sidebar panel to see model outputs.")

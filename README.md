@@ -76,7 +76,14 @@ The application allows the evaluator to:
 4. View the model's confusion matrix and prediction summary.
 
 The application loads the saved model and scaler artifacts. It does not retrain
-models on the uploaded test data.
+models on the uploaded test data. The app accepts either:
+
+- The original, user-friendly CSV format with categorical values such as `Yes`,
+  `No`, `DSL`, and `Two year`, plus the `Churn` column.
+- The already preprocessed, one-hot encoded format in `test_data.csv`.
+
+When a raw CSV is uploaded, the app applies the same one-hot encoding and feature
+alignment used during model training before making predictions.
 
 ## d. Models and evaluation results
 
