@@ -9,13 +9,6 @@ from sklearn.metrics import (
     recall_score, f1_score, matthews_corrcoef, confusion_matrix
 )
 
-# Set page title and layout structure
-st.set_page_config(page_title="AIML Machine Learning Evaluator", layout="wide")
-
-st.title("📊 Machine Learning Model Evaluation Dashboard")
-st.markdown("### BITS Pilani M.Tech (AIML) - Assignment 2")
-st.write("Upload your test dataset to evaluate our pre-trained classification models in real time.")
-
 APP_DIR = Path(__file__).resolve().parent
 NUMERICAL_COLUMNS = ["tenure", "MonthlyCharges", "TotalCharges"]
 RAW_FEATURE_COLUMNS = [
@@ -25,6 +18,56 @@ RAW_FEATURE_COLUMNS = [
     "StreamingMovies", "Contract", "PaperlessBilling", "PaymentMethod",
     "MonthlyCharges", "TotalCharges",
 ]
+
+# Set page title and layout structure
+st.set_page_config(page_title="AIML Machine Learning Evaluator", layout="wide")
+
+st.title("📊 Machine Learning Model Evaluation Dashboard")
+st.markdown("### BITS Pilani M.Tech (AIML) - Assignment 2")
+st.write("Upload your test dataset to evaluate our pre-trained classification models in real time.")
+
+st.subheader("Sample test files")
+st.write(
+    "Choose either sample format below. The app automatically preprocesses the "
+    "raw format before sending it to the saved models."
+)
+
+sample_col1, sample_col2 = st.columns(2)
+with sample_col1:
+    with st.container(border=True):
+        st.markdown("**Raw, user-friendly format**")
+        st.caption(
+            "Categorical values such as `Yes`, `No`, `DSL`, and `Two year`, "
+            "with the `Churn` target column."
+        )
+        raw_sample_path = APP_DIR / "telecom_churn_test_sample.csv"
+        if raw_sample_path.exists():
+            st.download_button(
+                "Download raw sample",
+                data=raw_sample_path.read_bytes(),
+                file_name=raw_sample_path.name,
+                mime="text/csv",
+            )
+        else:
+            st.warning("Raw sample file is not available in the repository.")
+
+with sample_col2:
+    with st.container(border=True):
+        st.markdown("**Preprocessed model-input format**")
+        st.caption(
+            "One-hot encoded feature columns matching the saved model input "
+            "schema, with the `Churn` target column."
+        )
+        encoded_sample_path = APP_DIR / "test_data.csv"
+        if encoded_sample_path.exists():
+            st.download_button(
+                "Download encoded sample",
+                data=encoded_sample_path.read_bytes(),
+                file_name=encoded_sample_path.name,
+                mime="text/csv",
+            )
+        else:
+            st.warning("Encoded sample file is not available in the repository.")
 
 # Helper function to safely load saved modeling assets
 @st.cache_resource
