@@ -39,7 +39,7 @@ drop_first=True)`. The continuous features `tenure`, `MonthlyCharges`, and
 training and test sets using an 80:20 stratified split with `random_state=42`.
 
 The public dataset is available from the
-[IBM Telco Customer Churn dataset on Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn).
+[Telecom Customer Churn dataset on Kaggle](https://www.kaggle.com/datasets/alipakzad/telecom-customer-churn/data).
 
 ## c. GitHub repository link
 
