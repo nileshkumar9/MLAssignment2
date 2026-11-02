@@ -1,0 +1,41 @@
+# Python environments and packaging
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Python cache and test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter artifacts
+.ipynb_checkpoints/
+
+# Streamlit local state
+.streamlit/secrets.toml
+.streamlit/cache/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Project-local agent tooling
+.agents/
+.claude/
