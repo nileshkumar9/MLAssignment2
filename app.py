@@ -23,8 +23,33 @@ RAW_FEATURE_COLUMNS = [
 st.set_page_config(page_title="AIML Machine Learning Evaluator", layout="wide")
 
 st.title("📊 Machine Learning Model Evaluation Dashboard")
-st.markdown("### BITS Pilani M.Tech (AIML) - Assignment 2")
+st.markdown("### Student ID : 2026AK05126 - ML Assignment 2")
 st.write("Upload your test dataset to evaluate our pre-trained classification models in real time.")
+
+with st.expander("About the dataset used"):
+    st.markdown(
+        """
+        This project uses the **IBM Telco Customer Churn dataset**, which contains
+        7,043 telecommunications customer records. The models predict whether a
+        customer will churn (`1`) or remain with the company (`0`) using demographic,
+        account, service, contract, and billing information.
+
+        - **Input features:** 19 customer attributes, including tenure,
+          contract type, internet services, payment method, and monthly charges.
+        - **Target:** `Churn`, encoded as `Yes`/`No` or `1`/`0`.
+        - **Preprocessing:** categorical features are one-hot encoded, while
+          `tenure`, `MonthlyCharges`, and `TotalCharges` are standardized.
+        - **Dataset use:** the saved models were trained before deployment. This
+          app only preprocesses uploaded test data, generates predictions, and
+          compares them with the provided target values; it does not retrain the
+          models.
+
+        **Dataset source:** [IBM Telco Customer Churn dataset on Kaggle](https://www.kaggle.com/datasets/alipakzad/telecom-customer-churn)
+
+        You can upload either the raw customer format or the preprocessed
+        `test_data.csv` format using the sidebar.
+        """
+    )
 
 st.subheader("Sample test files")
 st.write(
@@ -34,24 +59,6 @@ st.write(
 
 sample_col1, sample_col2 = st.columns(2)
 with sample_col1:
-    with st.container(border=True):
-        st.markdown("**Raw, user-friendly format**")
-        st.caption(
-            "Categorical values such as `Yes`, `No`, `DSL`, and `Two year`, "
-            "with the `Churn` target column."
-        )
-        raw_sample_path = APP_DIR / "telecom_churn_test_sample.csv"
-        if raw_sample_path.exists():
-            st.download_button(
-                "Download raw sample",
-                data=raw_sample_path.read_bytes(),
-                file_name=raw_sample_path.name,
-                mime="text/csv",
-            )
-        else:
-            st.warning("Raw sample file is not available in the repository.")
-
-with sample_col2:
     with st.container(border=True):
         st.markdown("**Preprocessed model-input format**")
         st.caption(
@@ -68,6 +75,24 @@ with sample_col2:
             )
         else:
             st.warning("Encoded sample file is not available in the repository.")
+
+with sample_col2:
+    with st.container(border=True):
+        st.markdown("**Raw, user-friendly format**")
+        st.caption(
+            "Categorical values such as `Yes`, `No`, `DSL`, and `Two year`, "
+            "with the `Churn` target column."
+        )
+        raw_sample_path = APP_DIR / "telecom_churn_test_sample.csv"
+        if raw_sample_path.exists():
+            st.download_button(
+                "Download raw sample",
+                data=raw_sample_path.read_bytes(),
+                file_name=raw_sample_path.name,
+                mime="text/csv",
+            )
+        else:
+            st.warning("Raw sample file is not available in the repository.")
 
 # Helper function to safely load saved modeling assets
 @st.cache_resource
