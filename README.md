@@ -116,7 +116,14 @@ false churn predictions.
 
 ## Running the application locally
 
-Install the dependencies:
+Create and activate a Python environment before installing the dependencies:
+
+| Environment | macOS/Linux | Windows (PowerShell) |
+|---|---|---|
+| Python `venv` | `python3 -m venv .venv`<br>`source .venv/bin/activate` | `py -m venv .venv`<br>`.venv\Scripts\Activate.ps1` |
+| Conda | `conda create --name ml-assignment python=3.11`<br>`conda activate ml-assignment` | `conda create --name ml-assignment python=3.11`<br>`conda activate ml-assignment` |
+
+Once the environment is active, install the dependencies:
 
 ```bash
 pip install -r requirements.txt
