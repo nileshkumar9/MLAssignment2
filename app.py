@@ -26,9 +26,11 @@ st.title("📊 Machine Learning Model Evaluation Dashboard")
 st.markdown("### Student ID : 2026AK05126 - ML Assignment 2")
 st.write("Upload your test dataset to evaluate our pre-trained classification models in real time.")
 
-with st.expander("About the dataset used"):
+with st.expander("About the Dataset used"):
     st.markdown(
         """
+        **Dataset source Used:** [IBM Telco Customer Churn dataset on Kaggle](https://www.kaggle.com/datasets/alipakzad/telecom-customer-churn)
+
         This project uses the **IBM Telco Customer Churn dataset**, which contains
         7,043 telecommunications customer records. The models predict whether a
         customer will churn (`1`) or remain with the company (`0`) using demographic,
@@ -44,55 +46,55 @@ with st.expander("About the dataset used"):
           compares them with the provided target values; it does not retrain the
           models.
 
-        **Dataset source:** [IBM Telco Customer Churn dataset on Kaggle](https://www.kaggle.com/datasets/alipakzad/telecom-customer-churn)
+
 
         You can upload either the raw customer format or the preprocessed
         `test_data.csv` format using the sidebar.
         """
     )
 
-st.subheader("Sample test files")
-st.write(
-    "Choose either sample format below. The app automatically preprocesses the "
-    "raw format before sending it to the saved models."
-)
+with st.expander("Download Sample Test Files"):
+    st.write(
+        "Choose either sample format below. The app automatically preprocesses the "
+        "raw format before sending it to the saved models."
+    )
 
-sample_col1, sample_col2 = st.columns(2)
-with sample_col1:
-    with st.container(border=True):
-        st.markdown("**Preprocessed model-input format**")
-        st.caption(
-            "One-hot encoded feature columns matching the saved model input "
-            "schema, with the `Churn` target column."
-        )
-        encoded_sample_path = APP_DIR / "test_data.csv"
-        if encoded_sample_path.exists():
-            st.download_button(
-                "Download encoded sample",
-                data=encoded_sample_path.read_bytes(),
-                file_name=encoded_sample_path.name,
-                mime="text/csv",
+    sample_col1, sample_col2 = st.columns(2)
+    with sample_col1:
+        with st.container(border=True):
+            st.markdown("**Preprocessed model-input format**")
+            st.caption(
+                "One-hot encoded feature columns matching the saved model input "
+                "schema, with the `Churn` target column."
             )
-        else:
-            st.warning("Encoded sample file is not available in the repository.")
+            encoded_sample_path = APP_DIR / "test_data.csv"
+            if encoded_sample_path.exists():
+                st.download_button(
+                    "Download encoded sample",
+                    data=encoded_sample_path.read_bytes(),
+                    file_name=encoded_sample_path.name,
+                    mime="text/csv",
+                )
+            else:
+                st.warning("Encoded sample file is not available in the repository.")
 
-with sample_col2:
-    with st.container(border=True):
-        st.markdown("**Raw, user-friendly format**")
-        st.caption(
-            "Categorical values such as `Yes`, `No`, `DSL`, and `Two year`, "
-            "with the `Churn` target column."
-        )
-        raw_sample_path = APP_DIR / "telecom_churn_test_sample.csv"
-        if raw_sample_path.exists():
-            st.download_button(
-                "Download raw sample",
-                data=raw_sample_path.read_bytes(),
-                file_name=raw_sample_path.name,
-                mime="text/csv",
+    with sample_col2:
+        with st.container(border=True):
+            st.markdown("**Raw, user-friendly format**")
+            st.caption(
+                "Categorical values such as `Yes`, `No`, `DSL`, and `Two year`, "
+                "with the `Churn` target column."
             )
-        else:
-            st.warning("Raw sample file is not available in the repository.")
+            raw_sample_path = APP_DIR / "telecom_churn_test_sample.csv"
+            if raw_sample_path.exists():
+                st.download_button(
+                    "Download raw sample",
+                    data=raw_sample_path.read_bytes(),
+                    file_name=raw_sample_path.name,
+                    mime="text/csv",
+                )
+            else:
+                st.warning("Raw sample file is not available in the repository.")
 
 # Helper function to safely load saved modeling assets
 @st.cache_resource
