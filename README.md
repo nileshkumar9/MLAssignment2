@@ -66,7 +66,7 @@ MLAssignment2/
 
 ## Live Streamlit application
 
-**Live app URL:** `Add the deployed Streamlit Community Cloud URL here`
+**Live app URL:** [`StreamLit URL`](https://2026ak05126-mlassignment2-5qqhmcxssubz5trngbq24a.streamlit.app/)
 
 The application allows the evaluator to:
 
