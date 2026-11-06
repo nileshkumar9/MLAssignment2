@@ -1,6 +1,6 @@
 # Customer Churn Classification Dashboard
 
-Machine Learning Assignment 2 for the BITS Pilani M.Tech (AIML) programme.
+Machine Learning Assignment 2.
 
 ## a. Problem statement
 
